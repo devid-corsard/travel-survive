@@ -1,6 +1,7 @@
 package world
 
 import (
+	"bytes"
 	"image"
 	"os"
 	"travel_survival_game/resource"
@@ -34,6 +35,22 @@ type World struct {
 	imgHeight   int
 	WorldWidth  int
 	WorldHeight int
+}
+
+func NewFromBytes(data []byte, worldW, worldH int) (*World, error) {
+	img, _, err := image.Decode(bytes.NewReader(data))
+	if err != nil {
+		return nil, err
+	}
+	b := img.Bounds()
+
+	return &World{
+		img:         img,
+		imgWidth:    b.Dx(),
+		imgHeight:   b.Dy(),
+		WorldWidth:  worldW,
+		WorldHeight: worldH,
+	}, nil
 }
 
 func New(path string, worldW, worldH int) (*World, error) {

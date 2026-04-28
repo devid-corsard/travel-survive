@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	_ "embed"
 	"fmt"
 	_ "image/png"
 	"os"
@@ -10,8 +11,11 @@ import (
 	"travel_survival_game/world"
 )
 
+//go:embed map.png
+var mapFile []byte
+
 func main() {
-	w, err := world.New("map.png", 50, 50)
+	w, err := world.NewFromBytes(mapFile, 50, 50)
 	if err != nil {
 		panic(err)
 	}
