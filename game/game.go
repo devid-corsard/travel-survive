@@ -55,7 +55,7 @@ func Save(p *player.Player) error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile("save.json", b, os.ModeAppend)
+	return os.WriteFile("save.json", b, 0644)
 }
 
 func Restore() (*player.Player, error) {
@@ -96,8 +96,8 @@ func look(w *world.World, p *player.Player) {
 	fmt.Printf("Health: %v\n", p.HP)
 	fmt.Printf("Hunger: %v\n", p.Hunger)
 	fmt.Printf("Resourses: \n")
-	for res, cou := range p.Resources {
-		fmt.Printf("%s:\t%v\n", res.Name, cou)
+	for _, res := range p.Resources {
+		fmt.Printf("%s:\t%v\n", res.Type.Name, res.Cnt)
 	}
 }
 
@@ -148,8 +148,9 @@ func gather(w *world.World, p *player.Player) {
 	for res, w := range b.Resources {
 		cumulative += w
 		if r < cumulative {
-			p.Resources[res] += 1
+			p.Collect(res)
 			fmt.Printf("You found %s\n", res.Name)
+			return
 		}
 	}
 }

@@ -20,7 +20,7 @@ func main() {
 
 	p, err := game.Restore()
 	if err != nil {
-		fmt.Printf("fail to restore game, creating new: %v", err)
+		fmt.Printf("fail to restore game, creating new: %v\n", err)
 		p = player.New(w.WorldWidth/2, w.WorldHeight/2)
 	}
 
@@ -61,6 +61,6 @@ func main() {
 	}
 	<-ctx.Done()
 	if err = game.Save(p); err != nil {
-		fmt.Printf("failed to save game: %v", err)
+		fmt.Printf("failed to save game: %v\n", err)
 	}
 }

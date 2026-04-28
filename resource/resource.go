@@ -1,12 +1,17 @@
 package resource
 
-type Res struct {
+type Type struct {
 	Name    string `json:"name"`
 	Eatable bool   `json:"eatable"`
 }
 
 var (
-	Food  = Res{"Food", true}
-	Wood  = Res{"Wood", false}
-	Water = Res{"Water", true}
+	Food  = Type{"Food", true}
+	Wood  = Type{"Wood", false}
+	Water = Type{"Water", true}
 )
+
+type Resource struct {
+	Type Type `json:"type"`
+	Cnt  uint `json:"count"`
+}

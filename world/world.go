@@ -10,7 +10,7 @@ type Color struct {
 	R, G, B uint8
 }
 
-type resCountMap map[resource.Res]uint
+type resCountMap map[resource.Type]uint
 
 type Biome struct {
 	Name      string
