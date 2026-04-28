@@ -26,9 +26,21 @@ func (this *Player) Live(hours uint) {
 }
 
 func (this *Player) Eat() bool {
-	for _, r := range this.Resources {
+	for i, r := range this.Resources {
 		if r.Type.Eatable && r.Cnt > 0 {
-			r.Cnt--
+			this.Resources[i].Cnt--
+			if this.HP < 100 {
+				this.HP += 5
+				if this.HP > 100 {
+					this.HP = 100
+				}
+			}
+			if this.Hunger > 0 {
+				this.Hunger -= 5
+				if this.Hunger < 0 {
+					this.Hunger = 0
+				}
+			}
 			return true
 		}
 	}

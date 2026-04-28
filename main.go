@@ -2,11 +2,9 @@ package main
 
 import (
 	"bufio"
-	"context"
 	"fmt"
 	_ "image/png"
 	"os"
-	"time"
 	"travel_survival_game/game"
 	"travel_survival_game/player"
 	"travel_survival_game/world"
@@ -28,20 +26,6 @@ func main() {
 
 	fmt.Println("Commands: look, move <north|south|east|west>, exit")
 
-	ctx, cancel := context.WithCancel(context.Background())
-
-	go func() {
-		for {
-			select {
-			case <-time.Tick(time.Duration(time.Minute * 1)):
-				p.Live(1)
-			case <-ctx.Done():
-				fmt.Println("Exit life loop")
-				return
-			}
-		}
-	}()
-
 	for {
 		fmt.Print("\n> ")
 		command, err := reader.ReadString('\n')
@@ -50,16 +34,14 @@ func main() {
 		}
 		exit := game.RunComand(w, p, command)
 		if exit {
-			cancel()
 			break
 		}
 		if p.HP <= 0 {
 			fmt.Printf("Game over, you died\n")
-			cancel()
 			break
 		}
 	}
-	<-ctx.Done()
+
 	if err = game.Save(p); err != nil {
 		fmt.Printf("failed to save game: %v\n", err)
 	}

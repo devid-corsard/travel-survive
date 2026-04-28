@@ -21,7 +21,7 @@ func RunComand(w *world.World, p *player.Player, c string) bool {
 
 	switch parts[0] {
 	case "look", "l":
-		look(w, p)
+		display(w, p)
 		prevCommand = c
 
 	case "move", "m":
@@ -29,7 +29,7 @@ func RunComand(w *world.World, p *player.Player, c string) bool {
 			fmt.Println("Usage: move <direction>")
 		} else {
 			move(w, p, parts[1])
-			look(w, p)
+			display(w, p)
 			prevCommand = c
 		}
 
@@ -39,6 +39,17 @@ func RunComand(w *world.World, p *player.Player, c string) bool {
 	case "gather", "g":
 		gather(w, p)
 		prevCommand = c
+
+	case "eat", "e":
+		ok := p.Eat()
+		if !ok {
+			fmt.Println("Nothing to eat")
+		} else {
+			display(w, p)
+		}
+
+		prevCommand = c
+
 	default:
 		if prevCommand != "" {
 			RunComand(w, p, prevCommand)
@@ -71,7 +82,7 @@ func Restore() (*player.Player, error) {
 	return &p, nil
 }
 
-func look(w *world.World, p *player.Player) {
+func display(w *world.World, p *player.Player) {
 	half := LOOK_DISTANCE / 2
 
 	fmt.Println()
@@ -133,6 +144,7 @@ func move(w *world.World, p *player.Player, dir string) {
 }
 
 func gather(w *world.World, p *player.Player) {
+	p.Live(1)
 	b := w.GetBiome(p.X, p.Y)
 	var commonProb uint
 	if len(b.Resources) == 0 {
