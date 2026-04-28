@@ -8,10 +8,11 @@ type Player struct {
 	HP        uint                `json:"hp"`
 	Hunger    int                 `json:"hunger"`
 	Resources []resource.Resource `json:"resources"`
+	Icon      string              `json:"icon"`
 }
 
 func New(x, y int) *Player {
-	return &Player{x, y, 100, 0, make([]resource.Resource, 0)}
+	return &Player{x, y, 100, 0, make([]resource.Resource, 0), "😊"}
 }
 
 func (this *Player) Live(hours uint) {

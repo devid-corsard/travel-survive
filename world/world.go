@@ -20,11 +20,11 @@ type Biome struct {
 }
 
 var (
-	Forest  = Biome{"Forest", 't', Color{0, 250, 0}, resCountMap{resource.Food: 5, resource.Wood: 100}}
-	Water   = Biome{"Water", '~', Color{0, 0, 250}, resCountMap{resource.Water: 100}}
-	Steppe  = Biome{"Steppe", '"', Color{150, 255, 150}, resCountMap{resource.Food: 2}}
-	Desert  = Biome{"Desert", '.', Color{255, 255, 0}, resCountMap{}}
-	Mount   = Biome{"Mountain", '^', Color{190, 190, 190}, resCountMap{resource.Food: 5, resource.Wood: 50}}
+	Forest  = Biome{"Forest", '🌲', Color{0, 250, 0}, resCountMap{resource.Food: 5, resource.Wood: 100}}
+	Water   = Biome{"Water", '🌊', Color{0, 0, 250}, resCountMap{resource.Water: 100}}
+	Steppe  = Biome{"Steppe", '🍀', Color{150, 255, 150}, resCountMap{resource.Food: 2}}
+	Desert  = Biome{"Desert", '🟨', Color{255, 255, 0}, resCountMap{}}
+	Mount   = Biome{"Mountain", '🗻', Color{190, 190, 190}, resCountMap{resource.Food: 5, resource.Wood: 50}}
 	Unknown = Biome{"Unknown", '?', Color{0, 0, 0}, resCountMap{}}
 )
 

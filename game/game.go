@@ -7,10 +7,11 @@ import (
 	"os"
 	"strings"
 	"travel_survival_game/player"
+	"travel_survival_game/resource"
 	"travel_survival_game/world"
 )
 
-const LOOK_DISTANCE = 10
+const LOOK_DISTANCE = 15
 
 var prevCommand string
 
@@ -29,7 +30,10 @@ func RunComand(w *world.World, p *player.Player, c string) bool {
 			fmt.Println("Usage: move <direction>")
 		} else {
 			move(w, p, parts[1])
-			display(w, p)
+			amap(w, p)
+			if p.HP <= 20 {
+				fmt.Println("Starving, health:", p.HP)
+			}
 			prevCommand = c
 		}
 
@@ -37,7 +41,13 @@ func RunComand(w *world.World, p *player.Player, c string) bool {
 		return true
 
 	case "gather", "g":
-		gather(w, p)
+		res := gather(w, p)
+		if res == nil {
+			fmt.Println("No resorces")
+		} else {
+			fmt.Printf("You found %s\n", res.Name)
+		}
+		stat(p)
 		prevCommand = c
 
 	case "eat", "e":
@@ -45,7 +55,7 @@ func RunComand(w *world.World, p *player.Player, c string) bool {
 		if !ok {
 			fmt.Println("Nothing to eat")
 		} else {
-			display(w, p)
+			stat(p)
 		}
 
 		prevCommand = c
@@ -83,6 +93,11 @@ func Restore() (*player.Player, error) {
 }
 
 func display(w *world.World, p *player.Player) {
+	amap(w, p)
+	stat(p)
+}
+
+func amap(w *world.World, p *player.Player) {
 	half := LOOK_DISTANCE / 2
 
 	fmt.Println()
@@ -93,7 +108,7 @@ func display(w *world.World, p *player.Player) {
 			y := p.Y + dy
 
 			if dx == 0 && dy == 0 {
-				fmt.Print("@") // гравець
+				fmt.Print(p.Icon) // гравець
 				continue
 			}
 
@@ -104,12 +119,17 @@ func display(w *world.World, p *player.Player) {
 	}
 
 	fmt.Println("\nYou are in:", w.GetBiome(p.X, p.Y).Name)
+
+}
+
+func stat(p *player.Player) {
 	fmt.Printf("Health: %v\n", p.HP)
 	fmt.Printf("Hunger: %v\n", p.Hunger)
 	fmt.Printf("Resourses: \n")
 	for _, res := range p.Resources {
 		fmt.Printf("%s:\t%v\n", res.Type.Name, res.Cnt)
 	}
+
 }
 
 func move(w *world.World, p *player.Player, dir string) {
@@ -143,13 +163,12 @@ func move(w *world.World, p *player.Player, dir string) {
 	p.Live(1)
 }
 
-func gather(w *world.World, p *player.Player) {
+func gather(w *world.World, p *player.Player) *resource.Type {
 	p.Live(1)
 	b := w.GetBiome(p.X, p.Y)
 	var commonProb uint
 	if len(b.Resources) == 0 {
-		fmt.Println("No resorces")
-		return
+		return nil
 	}
 	for _, p := range b.Resources {
 		commonProb += p
@@ -161,8 +180,8 @@ func gather(w *world.World, p *player.Player) {
 		cumulative += w
 		if r < cumulative {
 			p.Collect(res)
-			fmt.Printf("You found %s\n", res.Name)
-			return
+			return &res
 		}
 	}
+	return nil
 }
