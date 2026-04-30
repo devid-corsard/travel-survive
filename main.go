@@ -16,7 +16,7 @@ import (
 var mapFile []byte
 
 func main() {
-	w, err := world.NewFromBytes(mapFile, 50, 50)
+	w, err := world.NewFromBytes(mapFile, 100, 50)
 	if err != nil {
 		panic(err)
 	}

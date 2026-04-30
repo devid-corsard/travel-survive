@@ -105,12 +105,12 @@ type Biome struct {
 }
 
 var (
-	Forest  = Biome{"Forest", '🌲', Color{0, 250, 0}, resCountMap{resource.Food: 5, resource.Wood: 100}}
-	Water   = Biome{"Water", '🌊', Color{0, 0, 250}, resCountMap{resource.Water: 100}}
-	Steppe  = Biome{"Steppe", '🍀', Color{150, 255, 150}, resCountMap{resource.Food: 2}}
-	Desert  = Biome{"Desert", '🟨', Color{255, 255, 0}, resCountMap{}}
-	Mount   = Biome{"Mountain", '🗻', Color{190, 190, 190}, resCountMap{resource.Food: 5, resource.Wood: 50}}
-	Unknown = Biome{"Unknown", '?', Color{0, 0, 0}, resCountMap{}}
+	Forest = Biome{"Forest", '🌲', Color{0, 250, 0}, resCountMap{resource.Food: 5, resource.Wood: 100}}
+	Water  = Biome{"Water", '🌊', Color{0, 0, 250}, resCountMap{resource.Water: 100}}
+	Steppe = Biome{"Steppe", '🍀', Color{150, 255, 150}, resCountMap{resource.Food: 2}}
+	Desert = Biome{"Desert", '🟨', Color{255, 255, 0}, resCountMap{}}
+	Snow   = Biome{"Snow", '⬜', Color{255, 255, 255}, resCountMap{resource.Water: 10}}
+	Mount  = Biome{"Mountain", '🗻', Color{190, 190, 190}, resCountMap{resource.Food: 5, resource.Wood: 50}}
 )
 
 type World struct {
@@ -210,8 +210,10 @@ func (w *World) GetBiome(x, y int) Biome {
 		return Desert
 	case colorMatch(Mount.Color, r8, g8, b8):
 		return Mount
+	case colorMatch(Snow.Color, r8, g8, b8):
+		return Snow
 	default:
-		return Unknown
+		return Steppe
 	}
 }
 

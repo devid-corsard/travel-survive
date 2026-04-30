@@ -37,10 +37,15 @@ func RunComand(w *world.World, p *player.Player, c string) bool {
 		if len(parts) < 2 {
 			fmt.Println("Usage: move <direction>")
 		} else {
-			move(w, p, parts[1])
+			dir, err := world.NewDirection(parts[1])
+			if err != nil {
+				fmt.Println(err.Error())
+				break
+			}
+			movev2(w, p, dir, 1)
 			amap(w, p)
 			if p.HP <= 20 {
-				fmt.Println("Starving, health:", p.HP)
+				fmt.Println("Starving, health:", int(p.HP))
 			}
 			prevCommand = c
 		}
@@ -218,37 +223,6 @@ func movev2(w *world.World, p *player.Player, dir world.Direction, speed int) {
 	p.Live(1)
 }
 
-func move(w *world.World, p *player.Player, dir string) {
-	switch dir {
-	case "north":
-		p.Y--
-	case "south":
-		p.Y++
-	case "west":
-		p.X--
-	case "east":
-		p.X++
-	default:
-		fmt.Println("Unknown direction")
-		return
-	}
-
-	// wrap
-	if p.X < 0 {
-		p.X = w.WorldWidth - 1
-	}
-	if p.Y < 0 {
-		p.Y = w.WorldHeight - 1
-	}
-	if p.X >= w.WorldWidth {
-		p.X = 0
-	}
-	if p.Y >= w.WorldHeight {
-		p.Y = 0
-	}
-	p.Live(1)
-}
-
 func gather(w *world.World, p *player.Player) *resource.Type {
 	p.Live(1)
 	b := w.GetBiome(p.X, p.Y)
@@ -258,6 +232,9 @@ func gather(w *world.World, p *player.Player) *resource.Type {
 	}
 	for _, p := range b.Resources {
 		commonProb += p
+	}
+	if commonProb < 100 {
+		commonProb = 100
 	}
 	r := uint(rand.Intn(int(commonProb)))
 

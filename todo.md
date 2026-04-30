@@ -3,5 +3,6 @@
 - [x] add wind
 - [x] add movement on boat using wind(is random n e w s) and movement possible from 45 degres to wind
 - [ ] boat only works in water
-- [ ] use real continent map
+- [x] use real continent map
 - [ ] view zoom
+- [ ] print help with commands
