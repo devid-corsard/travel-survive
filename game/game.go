@@ -15,10 +15,16 @@ import (
 
 const LOOK_DISTANCE = 15
 
-var prevCommand string
+var (
+	prevCommand string
+	isGoing     bool = false
+)
 
 func RunComand(w *world.World, p *player.Player, c string) bool {
 	input := strings.TrimSpace(c)
+	if isGoing {
+		isGoing = false
+	}
 
 	parts := strings.Split(input, " ")
 
@@ -71,6 +77,7 @@ func RunComand(w *world.World, p *player.Player, c string) bool {
 				err := p.Craft(&items.Boat{})
 				if err != nil {
 					fmt.Println(err.Error())
+					break
 				}
 				stat(p)
 			default:
@@ -95,17 +102,22 @@ func RunComand(w *world.World, p *player.Player, c string) bool {
 				d, err := world.NewDirection(parts[1])
 				if err != nil {
 					fmt.Println(err.Error())
+					break
 				}
-				wind := world.North
-				speed, err := boat.Go(wind, d)
-				if err != nil {
-					fmt.Println(err.Error())
-				}
-				for range 5 {
-					movev2(w, p, d, speed)
-					amap(w, p)
-					<-time.After(time.Second * 3)
-				}
+
+				isGoing = true
+				go func() {
+					for isGoing {
+						speed, err := boat.Go(w.Wind, d)
+						if err != nil {
+							fmt.Println(err.Error())
+						} else {
+							movev2(w, p, d, speed)
+							amap(w, p)
+						}
+						<-time.After(time.Second * 3)
+					}
+				}()
 			}
 
 		}
@@ -169,7 +181,7 @@ func amap(w *world.World, p *player.Player) {
 	}
 
 	fmt.Println("\nYou are in:", w.GetBiome(p.X, p.Y).Name)
-
+	fmt.Println("Wind: ", w.Wind.String())
 }
 
 func stat(p *player.Player) {

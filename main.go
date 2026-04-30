@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"context"
 	_ "embed"
 	"fmt"
 	_ "image/png"
@@ -30,6 +31,8 @@ func main() {
 
 	fmt.Println("Commands: look, move <north|south|east|west>, exit")
 
+	ctx, cancel := context.WithCancel(context.Background())
+	go w.Live(ctx)
 	for {
 		fmt.Print("\n> ")
 		command, err := reader.ReadString('\n')
@@ -45,6 +48,7 @@ func main() {
 			break
 		}
 	}
+	cancel()
 
 	if err = game.Save(p); err != nil {
 		fmt.Printf("failed to save game: %v\n", err)

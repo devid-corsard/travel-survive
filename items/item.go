@@ -86,7 +86,7 @@ func (b *Boat) ResString() string {
 func (b *Boat) Go(wind, course world.Direction) (int, error) {
 	attackAngle := course.Delta(wind)
 	if attackAngle == 0 {
-		return 0, errors.New("Move against the wind")
+		return 0, errors.New("Move against the wind: " + wind.String())
 	}
 	speedMap := map[int]int{
 		45:  1,

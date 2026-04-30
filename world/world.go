@@ -2,9 +2,12 @@ package world
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"image"
+	"math/rand"
 	"os"
+	"time"
 	"travel_survival_game/resource"
 )
 
@@ -116,6 +119,7 @@ type World struct {
 	imgHeight   int
 	WorldWidth  int
 	WorldHeight int
+	Wind        Direction
 }
 
 func NewFromBytes(data []byte, worldW, worldH int) (*World, error) {
@@ -208,5 +212,43 @@ func (w *World) GetBiome(x, y int) Biome {
 		return Mount
 	default:
 		return Unknown
+	}
+}
+
+func (d Direction) String() string {
+	m := map[Direction]string{
+		North:     "north",
+		NorthEast: "north-east",
+		East:      "east",
+		SouthEast: "south-east",
+		South:     "south",
+		SouthWest: "south-west",
+		West:      "west",
+		NorthWest: "north-west",
+	}
+	s := m[d]
+	return s
+}
+
+func (w *World) Live(ctx context.Context) {
+	fmt.Println("world alive")
+	ticker := time.NewTicker(time.Second * 5)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			fmt.Println("World stopped")
+			return
+		case <-ticker.C:
+			way := rand.Intn(3) - 1
+			w.Wind += Direction(45 * way)
+			if w.Wind >= 360 {
+				w.Wind -= 360
+			}
+			if w.Wind < 0 {
+				w.Wind += 360
+			}
+		}
 	}
 }
