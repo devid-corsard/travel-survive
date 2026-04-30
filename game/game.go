@@ -26,18 +26,18 @@ func RunComand(w *world.World, p *player.Player, c string) bool {
 		isGoing = false
 	}
 
-	parts := strings.Split(input, " ")
+	args := strings.Split(input, " ")
 
-	switch parts[0] {
+	switch args[0] {
 	case "look", "l":
 		display(w, p)
 		prevCommand = c
 
 	case "move", "m":
-		if len(parts) < 2 {
+		if len(args) < 2 {
 			fmt.Println("Usage: move <direction>")
 		} else {
-			dir, err := world.NewDirection(parts[1])
+			dir, err := world.NewDirection(args[1])
 			if err != nil {
 				fmt.Println(err.Error())
 				break
@@ -70,61 +70,19 @@ func RunComand(w *world.World, p *player.Player, c string) bool {
 		} else {
 			stat(p)
 		}
-
 		prevCommand = c
 
 	case "craft", "c":
-		if len(parts) < 2 {
+		if len(args) < 2 {
 			fmt.Println("Usage: craft <item_name>")
 		} else {
-			switch parts[1] {
-			case "boat":
-				err := p.Craft(&items.Boat{})
-				if err != nil {
-					fmt.Println(err.Error())
-					break
-				}
-				stat(p)
-			default:
-				fmt.Println("unknown item: ", parts[1])
-			}
+			craft(p, args[1])
 		}
 	case "go":
-		if len(parts) < 2 {
+		if len(args) < 2 {
 			fmt.Println("Usage: go <direction>")
 		} else {
-			var boat *items.Boat
-			for _, itm := range p.Items {
-				switch itm.(type) {
-				case *items.Boat:
-					boat = itm.(*items.Boat)
-				default:
-				}
-			}
-			if boat == nil {
-				fmt.Println("you dont have transport")
-			} else {
-				d, err := world.NewDirection(parts[1])
-				if err != nil {
-					fmt.Println(err.Error())
-					break
-				}
-
-				isGoing = true
-				go func() {
-					for isGoing {
-						speed, err := boat.Go(w.Wind, d)
-						if err != nil {
-							fmt.Println(err.Error())
-						} else {
-							movev2(w, p, d, speed)
-							amap(w, p)
-						}
-						<-time.After(time.Second * 3)
-					}
-				}()
-			}
-
+			toGo(w, p, args[1])
 		}
 
 	default:
@@ -175,7 +133,11 @@ func amap(w *world.World, p *player.Player) {
 			y := p.Y + dy
 
 			if dx == 0 && dy == 0 {
-				fmt.Print(p.Icon) // гравець
+				ic := p.Icon
+				if isGoing {
+					ic = "⛵️"
+				}
+				fmt.Print(ic) // гравець
 				continue
 			}
 
@@ -247,4 +209,52 @@ func gather(w *world.World, p *player.Player) *resource.Type {
 		}
 	}
 	return nil
+}
+
+func toGo(w *world.World, p *player.Player, dir string) {
+	var boat *items.Boat
+	for _, itm := range p.Items {
+		switch itm.(type) {
+		case *items.Boat:
+			boat = itm.(*items.Boat)
+		default:
+		}
+	}
+	if boat == nil {
+		fmt.Println("you dont have transport")
+	} else {
+		d, err := world.NewDirection(dir)
+		if err != nil {
+			fmt.Println(err.Error())
+			return
+		}
+
+		isGoing = true
+		go func() {
+			for isGoing {
+				speed, err := boat.Go(w.Wind, d)
+				if err != nil {
+					fmt.Println(err.Error())
+				} else {
+					movev2(w, p, d, speed)
+					amap(w, p)
+				}
+				<-time.After(time.Second * 3)
+			}
+		}()
+	}
+}
+
+func craft(p *player.Player, itm string) {
+	switch itm {
+	case "boat":
+		err := p.Craft(&items.Boat{})
+		if err != nil {
+			fmt.Println(err.Error())
+			break
+		}
+		stat(p)
+	default:
+		fmt.Println("unknown item: ", itm)
+	}
 }

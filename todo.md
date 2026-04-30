@@ -6,3 +6,4 @@
 - [x] use real continent map
 - [ ] view zoom
 - [ ] print help with commands
+- [x] boat icon
