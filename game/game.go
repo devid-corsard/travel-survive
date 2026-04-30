@@ -6,6 +6,8 @@ import (
 	"math/rand"
 	"os"
 	"strings"
+	"time"
+	"travel_survival_game/items"
 	"travel_survival_game/player"
 	"travel_survival_game/resource"
 	"travel_survival_game/world"
@@ -59,6 +61,54 @@ func RunComand(w *world.World, p *player.Player, c string) bool {
 		}
 
 		prevCommand = c
+
+	case "craft", "c":
+		if len(parts) < 2 {
+			fmt.Println("Usage: craft <item_name>")
+		} else {
+			switch parts[1] {
+			case "boat":
+				err := p.Craft(&items.Boat{})
+				if err != nil {
+					fmt.Println(err.Error())
+				}
+				stat(p)
+			default:
+				fmt.Println("unknown item: ", parts[1])
+			}
+		}
+	case "go":
+		if len(parts) < 2 {
+			fmt.Println("Usage: go <direction>")
+		} else {
+			var boat *items.Boat
+			for _, itm := range p.Items {
+				switch itm.(type) {
+				case *items.Boat:
+					boat = itm.(*items.Boat)
+				default:
+				}
+			}
+			if boat == nil {
+				fmt.Println("you dont have transport")
+			} else {
+				d, err := world.NewDirection(parts[1])
+				if err != nil {
+					fmt.Println(err.Error())
+				}
+				wind := world.North
+				speed, err := boat.Go(wind, d)
+				if err != nil {
+					fmt.Println(err.Error())
+				}
+				for range 5 {
+					movev2(w, p, d, speed)
+					amap(w, p)
+					<-time.After(time.Second * 3)
+				}
+			}
+
+		}
 
 	default:
 		if prevCommand != "" {
@@ -129,7 +179,31 @@ func stat(p *player.Player) {
 	for _, res := range p.Resources {
 		fmt.Printf("%s:\t%v\n", res.Type.Name, res.Cnt)
 	}
+	fmt.Printf("Items: \n")
+	for _, itm := range p.Items {
+		fmt.Println(itm.Describe())
+	}
 
+}
+func movev2(w *world.World, p *player.Player, dir world.Direction, speed int) {
+	dx, dy := dir.Vector()
+	p.X += dx * speed
+	p.Y += dy * speed
+
+	// wrap
+	if p.X < 0 {
+		p.X = w.WorldWidth - 1
+	}
+	if p.Y < 0 {
+		p.Y = w.WorldHeight - 1
+	}
+	if p.X >= w.WorldWidth {
+		p.X = 0
+	}
+	if p.Y >= w.WorldHeight {
+		p.Y = 0
+	}
+	p.Live(1)
 }
 
 func move(w *world.World, p *player.Player, dir string) {

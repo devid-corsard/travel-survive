@@ -1,6 +1,10 @@
 package player
 
-import "travel_survival_game/resource"
+import (
+	"fmt"
+	"travel_survival_game/items"
+	"travel_survival_game/resource"
+)
 
 type Player struct {
 	X         int                 `json:"x"`
@@ -8,6 +12,7 @@ type Player struct {
 	HP        float64             `json:"hp"`
 	Hunger    float64             `json:"hunger"`
 	Resources []resource.Resource `json:"resources"`
+	Items     items.ItemList      `json:"items"`
 	Icon      string              `json:"icon"`
 }
 
@@ -19,7 +24,7 @@ const (
 )
 
 func New(x, y int) *Player {
-	return &Player{x, y, DEFAULT_HP, 0, make([]resource.Resource, 0), "😊"}
+	return &Player{x, y, DEFAULT_HP, 0, make([]resource.Resource, 0), make([]items.Item, 0), "😊"}
 }
 
 func (this *Player) Live(hours float64) {
@@ -64,4 +69,17 @@ func (this *Player) Collect(r resource.Type) {
 		}
 	}
 	this.Resources = append(this.Resources, resource.Resource{r, 1})
+}
+
+func (this *Player) Craft(itm items.Item) error {
+	switch itm.(type) {
+	case *items.Boat:
+		boat, err := items.NewBoat(this.Resources)
+		if err != nil {
+			return err
+		}
+		this.Items = append(this.Items, boat)
+		return nil
+	}
+	return fmt.Errorf("Unknown item: %v", itm.Describe())
 }
