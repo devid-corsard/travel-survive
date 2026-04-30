@@ -10,7 +10,7 @@ Items: boat
 
 Real world map with biomes: water,desert,steppe,wood,mountain,snow
 
-[Preview](preview.png)
+![Preview](preview.png)
 
 ## The idea
 
