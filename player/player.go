@@ -20,7 +20,7 @@ const (
 	DEFAULT_HP                 float64 = 100
 	HOURS_CAN_LIVE_WITH_HUNGER float64 = 240
 	EXHAUST_K                          = DEFAULT_HP / HOURS_CAN_LIVE_WITH_HUNGER
-	FOOD_EFFECT                float64 = 10
+	FOOD_EFFECT                float64 = 15
 )
 
 func New(x, y int) *Player {
