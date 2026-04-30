@@ -1,0 +1,4 @@
+- [x] adjust health decrease, use float for health and hunger
+- [ ] add boat item
+- [ ] add wind(on water)
+- [ ] add movement on boat using wind(is random n e w s) and movement possible from 45 degres to wind

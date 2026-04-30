@@ -5,24 +5,32 @@ import "travel_survival_game/resource"
 type Player struct {
 	X         int                 `json:"x"`
 	Y         int                 `json:"y"`
-	HP        uint                `json:"hp"`
-	Hunger    int                 `json:"hunger"`
+	HP        float64             `json:"hp"`
+	Hunger    float64             `json:"hunger"`
 	Resources []resource.Resource `json:"resources"`
 	Icon      string              `json:"icon"`
 }
 
+const (
+	DEFAULT_HP                 float64 = 100
+	HOURS_CAN_LIVE_WITH_HUNGER float64 = 240
+	EXHAUST_K                          = DEFAULT_HP / HOURS_CAN_LIVE_WITH_HUNGER
+	FOOD_EFFECT                float64 = 10
+)
+
 func New(x, y int) *Player {
-	return &Player{x, y, 100, 0, make([]resource.Resource, 0), "😊"}
+	return &Player{x, y, DEFAULT_HP, 0, make([]resource.Resource, 0), "😊"}
 }
 
-func (this *Player) Live(hours uint) {
-	if hours == 0 {
+func (this *Player) Live(hours float64) {
+	if hours <= 0 {
 		hours = 1
 	}
-	if this.Hunger > 24 {
-		this.HP--
+	exhaust := hours * EXHAUST_K
+	if this.Hunger > 99.99 {
+		this.HP -= exhaust
 	} else {
-		this.Hunger += 1 * int(hours)
+		this.Hunger += exhaust
 	}
 }
 
@@ -31,13 +39,13 @@ func (this *Player) Eat() bool {
 		if r.Type.Eatable && r.Cnt > 0 {
 			this.Resources[i].Cnt--
 			if this.HP < 100 {
-				this.HP += 5
+				this.HP += FOOD_EFFECT
 				if this.HP > 100 {
 					this.HP = 100
 				}
 			}
 			if this.Hunger > 0 {
-				this.Hunger -= 5
+				this.Hunger -= FOOD_EFFECT
 				if this.Hunger < 0 {
 					this.Hunger = 0
 				}

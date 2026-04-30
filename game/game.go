@@ -123,8 +123,8 @@ func amap(w *world.World, p *player.Player) {
 }
 
 func stat(p *player.Player) {
-	fmt.Printf("Health: %v\n", p.HP)
-	fmt.Printf("Hunger: %v\n", p.Hunger)
+	fmt.Printf("Health: %v\n", int(p.HP))
+	fmt.Printf("Hunger: %v\n", int(p.Hunger))
 	fmt.Printf("Resourses: \n")
 	for _, res := range p.Resources {
 		fmt.Printf("%s:\t%v\n", res.Type.Name, res.Cnt)
