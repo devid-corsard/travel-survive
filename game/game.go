@@ -21,11 +21,11 @@ var (
 	isGoing     bool = false
 )
 
-func RunComand(w *world.World, p *player.Player, c string, ren render.Renderer) (bool, string) {
+func RunComand(w *world.World, p *player.Player, c string, ren render.Chan) (bool, string) {
 	var comInfo string
 	input := strings.TrimSpace(c)
 	if isGoing {
-		isGoing = false
+		isGoing = p.SetSailing(false)
 	}
 
 	args := strings.Split(input, " ")
@@ -161,7 +161,7 @@ func gather(w *world.World, p *player.Player) *resource.Type {
 	return nil
 }
 
-func toGo(w *world.World, p *player.Player, dir string, ren render.Renderer) string {
+func toGo(w *world.World, p *player.Player, dir string, ren render.Chan) string {
 	var boat *items.Boat
 	for _, itm := range p.Items {
 		switch itm := itm.(type) {
@@ -177,15 +177,18 @@ func toGo(w *world.World, p *player.Player, dir string, ren render.Renderer) str
 			return err.Error()
 		}
 
-		isGoing = true
+		isGoing = p.SetSailing(true)
 		go func() {
 			for isGoing {
 				speed, err := boat.Go(w.Wind, d)
 				if err != nil {
-					ren.Display(w, p, err.Error())
+					ren <- err.Error()
 				} else {
 					movev2(w, p, d, 1)
-					ren.Display(w, p, "")
+					ren <- fmt.Sprint("Sailing, speed: ", speed)
+				}
+				if speed <= 0 {
+					speed = 1
 				}
 				<-time.After(time.Second * 3 / time.Duration(speed))
 			}

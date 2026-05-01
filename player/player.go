@@ -83,3 +83,12 @@ func (this *Player) Craft(itm items.Item) error {
 	}
 	return fmt.Errorf("Unknown item: %v", itm.Describe())
 }
+
+func (this *Player) SetSailing(f bool) bool {
+	if f {
+		this.Icon = "⛵️"
+	} else {
+		this.Icon = "😊"
+	}
+	return f
+}

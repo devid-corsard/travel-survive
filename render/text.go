@@ -22,6 +22,7 @@ func (t *Text) Display(w *world.World, p *player.Player, info string) {
 	t.amap(w, p)
 	t.stat(p)
 	fmt.Println("Info: ", info)
+	fmt.Print("\n> ")
 }
 
 func (t *Text) amap(w *world.World, p *player.Player) {

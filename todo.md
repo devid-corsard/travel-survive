@@ -12,7 +12,7 @@
 
 - [x] fixed display, every command produces fixed text area, erors and messages are in info box
 - [x] refactor display to render in every game loop, commands return info result
-- [ ] fix bug with move render
+- [x] fix bug with move render
 
 - [ ] tui, each redraw clears the screen, resize dont brake anything
 - [ ] track buttons, so move with arrow buttons

@@ -8,3 +8,5 @@ import (
 type Renderer interface {
 	Display(*world.World, *player.Player, string)
 }
+
+type Chan chan string

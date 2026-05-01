@@ -33,15 +33,26 @@ func main() {
 	reader := bufio.NewReader(os.Stdin)
 
 	ctx, cancel := context.WithCancel(context.Background())
+
+	renderCh := make(render.Chan)
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case inf := <-renderCh:
+				ren.Display(w, p, inf)
+			}
+		}
+	}()
 	go w.Live(ctx)
 	for {
-		ren.Display(w, p, info)
-		fmt.Print("\n> ")
+		renderCh <- info
 		command, err := reader.ReadString('\n')
 		if err != nil {
 			fmt.Printf("failed to read command: %v", err.Error())
 		}
-		exit, inf := game.RunComand(w, p, command, ren)
+		exit, inf := game.RunComand(w, p, command, renderCh)
 		info = inf
 		if exit {
 			break
