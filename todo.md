@@ -16,13 +16,15 @@
 
 - [x] tui, each redraw clears the screen, resize dont brake anything
 - [x] compact info
-- [ ] track buttons, so move with arrow buttons
+- [x] track buttons, so move with arrow buttons
+
+- [ ] FIX sqeezed map, world size wierd
+- [ ] FIX Unkown comand info
+
 - [ ] track touches, so point to move, buttons commands
 - [x] boat speed influences the delay between moves not the number of coordinates
 - [ ] refactor commands to interfaces and commands registry
 - [x] boat runs only in water
-
-## Complex
 
 - [ ] add enemies
 - [ ] add experience value
