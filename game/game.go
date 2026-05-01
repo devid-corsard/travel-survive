@@ -9,6 +9,7 @@ import (
 	"time"
 	"travel_survival_game/items"
 	"travel_survival_game/player"
+	"travel_survival_game/render"
 	"travel_survival_game/resource"
 	"travel_survival_game/world"
 )
@@ -20,7 +21,8 @@ var (
 	isGoing     bool = false
 )
 
-func RunComand(w *world.World, p *player.Player, c string) bool {
+func RunComand(w *world.World, p *player.Player, c string, ren render.Renderer) (bool, string) {
+	var comInfo string
 	input := strings.TrimSpace(c)
 	if isGoing {
 		isGoing = false
@@ -30,73 +32,64 @@ func RunComand(w *world.World, p *player.Player, c string) bool {
 
 	switch args[0] {
 	case "look", "l":
-		displayv2(w, p, "")
 		prevCommand = c
 
 	case "move", "m":
 		if len(args) < 2 {
-			displayv2(w, p, "Usage: move <direction>")
+			comInfo = "Usage: move <direction>"
 		} else {
 			dir, err := world.NewDirection(args[1])
 			if err != nil {
-				displayv2(w, p, err.Error())
+				comInfo = err.Error()
 				break
 			}
 			movev2(w, p, dir, 1)
 			if p.HP <= 20 {
-				displayv2(w, p, fmt.Sprint("Starving, health:", int(p.HP)))
-			} else {
-				displayv2(w, p, "")
+				comInfo = fmt.Sprint("Starving, health:", int(p.HP))
 			}
 			prevCommand = c
 		}
 
 	case "exit", "q":
-		return true
+		return true, ""
 
 	case "gather", "g":
 		res := gather(w, p)
 		if res == nil {
-			displayv2(w, p, "No resorces")
+			comInfo = "No resorces"
 		} else {
-			displayv2(w, p, fmt.Sprintf("You found %s", res.Name))
+			comInfo = fmt.Sprintf("You found %s", res.Name)
 		}
 		prevCommand = c
 
 	case "eat", "e":
 		ok := p.Eat()
 		if !ok {
-			displayv2(w, p, "Nothing to eat")
-		} else {
-			displayv2(w, p, "")
+			comInfo = "Nothing to eat"
 		}
 		prevCommand = c
 
 	case "craft", "c":
 		if len(args) < 2 {
-			displayv2(w, p, "Usage: craft <item_name>")
+			comInfo = "Usage: craft <item_name>"
 		} else {
-			info := craft(p, args[1])
-			displayv2(w, p, info)
+			comInfo = craft(p, args[1])
 		}
 	case "go":
 		if len(args) < 2 {
-			displayv2(w, p, "Usage: go <direction>")
+			comInfo = "Usage: go <direction>"
 		} else {
-			info := toGo(w, p, args[1])
-			if info != "" {
-				displayv2(w, p, info)
-			}
+			comInfo = toGo(w, p, args[1], ren)
 		}
 
 	default:
 		if prevCommand != "" {
-			RunComand(w, p, prevCommand)
+			RunComand(w, p, prevCommand, ren)
 		} else {
-			displayv2(w, p, "Unknown command")
+			comInfo = "Unknown command"
 		}
 	}
-	return false
+	return false, comInfo
 
 }
 
@@ -121,54 +114,6 @@ func Restore() (*player.Player, error) {
 	return &p, nil
 }
 
-func displayv2(w *world.World, p *player.Player, info string) {
-	amap(w, p)
-	stat(p)
-	fmt.Println("Info: ", info)
-}
-
-func amap(w *world.World, p *player.Player) {
-	half := LOOK_DISTANCE / 2
-
-	fmt.Println()
-
-	for dy := -half; dy < half; dy++ {
-		for dx := -half; dx < half; dx++ {
-			x := p.X + dx
-			y := p.Y + dy
-
-			if dx == 0 && dy == 0 {
-				ic := p.Icon
-				if isGoing {
-					ic = "⛵️"
-				}
-				fmt.Print(ic) // гравець
-				continue
-			}
-
-			b := w.GetBiome(x, y)
-			fmt.Print(string(b.Symbol))
-		}
-		fmt.Println()
-	}
-
-	fmt.Println("\nYou are in:", w.GetBiome(p.X, p.Y).Name)
-	fmt.Println("Wind: ", w.Wind.String())
-}
-
-func stat(p *player.Player) {
-	fmt.Printf("Health: %v\n", int(p.HP))
-	fmt.Printf("Hunger: %v\n", int(p.Hunger))
-	fmt.Printf("Resourses: \n")
-	for _, res := range p.Resources {
-		fmt.Printf("%s:\t%v\n", res.Type.Name, res.Cnt)
-	}
-	fmt.Printf("Items: \n")
-	for _, itm := range p.Items {
-		fmt.Println(itm.Describe())
-	}
-
-}
 func movev2(w *world.World, p *player.Player, dir world.Direction, speed int) {
 	dx, dy := dir.Vector()
 	p.X += dx * speed
@@ -216,7 +161,7 @@ func gather(w *world.World, p *player.Player) *resource.Type {
 	return nil
 }
 
-func toGo(w *world.World, p *player.Player, dir string) string {
+func toGo(w *world.World, p *player.Player, dir string, ren render.Renderer) string {
 	var boat *items.Boat
 	for _, itm := range p.Items {
 		switch itm := itm.(type) {
@@ -237,12 +182,12 @@ func toGo(w *world.World, p *player.Player, dir string) string {
 			for isGoing {
 				speed, err := boat.Go(w.Wind, d)
 				if err != nil {
-					displayv2(w, p, err.Error())
+					ren.Display(w, p, err.Error())
 				} else {
-					movev2(w, p, d, speed)
-					displayv2(w, p, "")
+					movev2(w, p, d, 1)
+					ren.Display(w, p, "")
 				}
-				<-time.After(time.Second * 3)
+				<-time.After(time.Second * 3 / time.Duration(speed))
 			}
 		}()
 	}
