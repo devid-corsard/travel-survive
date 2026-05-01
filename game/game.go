@@ -13,7 +13,7 @@ import (
 	"travel_survival_game/world"
 )
 
-const LOOK_DISTANCE = 15
+const LOOK_DISTANCE = 35
 
 var (
 	prevCommand string
@@ -30,22 +30,23 @@ func RunComand(w *world.World, p *player.Player, c string) bool {
 
 	switch args[0] {
 	case "look", "l":
-		display(w, p)
+		displayv2(w, p, "")
 		prevCommand = c
 
 	case "move", "m":
 		if len(args) < 2 {
-			fmt.Println("Usage: move <direction>")
+			displayv2(w, p, "Usage: move <direction>")
 		} else {
 			dir, err := world.NewDirection(args[1])
 			if err != nil {
-				fmt.Println(err.Error())
+				displayv2(w, p, err.Error())
 				break
 			}
 			movev2(w, p, dir, 1)
-			amap(w, p)
 			if p.HP <= 20 {
-				fmt.Println("Starving, health:", int(p.HP))
+				displayv2(w, p, fmt.Sprint("Starving, health:", int(p.HP)))
+			} else {
+				displayv2(w, p, "")
 			}
 			prevCommand = c
 		}
@@ -56,40 +57,43 @@ func RunComand(w *world.World, p *player.Player, c string) bool {
 	case "gather", "g":
 		res := gather(w, p)
 		if res == nil {
-			fmt.Println("No resorces")
+			displayv2(w, p, "No resorces")
 		} else {
-			fmt.Printf("You found %s\n", res.Name)
+			displayv2(w, p, fmt.Sprintf("You found %s", res.Name))
 		}
-		stat(p)
 		prevCommand = c
 
 	case "eat", "e":
 		ok := p.Eat()
 		if !ok {
-			fmt.Println("Nothing to eat")
+			displayv2(w, p, "Nothing to eat")
 		} else {
-			stat(p)
+			displayv2(w, p, "")
 		}
 		prevCommand = c
 
 	case "craft", "c":
 		if len(args) < 2 {
-			fmt.Println("Usage: craft <item_name>")
+			displayv2(w, p, "Usage: craft <item_name>")
 		} else {
-			craft(p, args[1])
+			info := craft(p, args[1])
+			displayv2(w, p, info)
 		}
 	case "go":
 		if len(args) < 2 {
-			fmt.Println("Usage: go <direction>")
+			displayv2(w, p, "Usage: go <direction>")
 		} else {
-			toGo(w, p, args[1])
+			info := toGo(w, p, args[1])
+			if info != "" {
+				displayv2(w, p, info)
+			}
 		}
 
 	default:
 		if prevCommand != "" {
 			RunComand(w, p, prevCommand)
 		} else {
-			fmt.Println("Unknown command")
+			displayv2(w, p, "Unknown command")
 		}
 	}
 	return false
@@ -117,9 +121,10 @@ func Restore() (*player.Player, error) {
 	return &p, nil
 }
 
-func display(w *world.World, p *player.Player) {
+func displayv2(w *world.World, p *player.Player, info string) {
 	amap(w, p)
 	stat(p)
+	fmt.Println("Info: ", info)
 }
 
 func amap(w *world.World, p *player.Player) {
@@ -211,22 +216,20 @@ func gather(w *world.World, p *player.Player) *resource.Type {
 	return nil
 }
 
-func toGo(w *world.World, p *player.Player, dir string) {
+func toGo(w *world.World, p *player.Player, dir string) string {
 	var boat *items.Boat
 	for _, itm := range p.Items {
-		switch itm.(type) {
+		switch itm := itm.(type) {
 		case *items.Boat:
-			boat = itm.(*items.Boat)
-		default:
+			boat = itm
 		}
 	}
 	if boat == nil {
-		fmt.Println("you dont have transport")
+		return "you dont have transport"
 	} else {
 		d, err := world.NewDirection(dir)
 		if err != nil {
-			fmt.Println(err.Error())
-			return
+			return err.Error()
 		}
 
 		isGoing = true
@@ -234,27 +237,27 @@ func toGo(w *world.World, p *player.Player, dir string) {
 			for isGoing {
 				speed, err := boat.Go(w.Wind, d)
 				if err != nil {
-					fmt.Println(err.Error())
+					displayv2(w, p, err.Error())
 				} else {
 					movev2(w, p, d, speed)
-					amap(w, p)
+					displayv2(w, p, "")
 				}
 				<-time.After(time.Second * 3)
 			}
 		}()
 	}
+	return ""
 }
 
-func craft(p *player.Player, itm string) {
+func craft(p *player.Player, itm string) string {
 	switch itm {
 	case "boat":
 		err := p.Craft(&items.Boat{})
 		if err != nil {
-			fmt.Println(err.Error())
-			break
+			return err.Error()
 		}
-		stat(p)
+		return ""
 	default:
-		fmt.Println("unknown item: ", itm)
+		return fmt.Sprint("unknown item: ", itm)
 	}
 }

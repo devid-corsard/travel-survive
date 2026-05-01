@@ -233,14 +233,12 @@ func (d Direction) String() string {
 }
 
 func (w *World) Live(ctx context.Context) {
-	fmt.Println("world alive")
 	ticker := time.NewTicker(time.Second * 5)
 	defer ticker.Stop()
 
 	for {
 		select {
 		case <-ctx.Done():
-			fmt.Println("World stopped")
 			return
 		case <-ticker.C:
 			way := rand.Intn(3) - 1

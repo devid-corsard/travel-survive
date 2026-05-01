@@ -29,8 +29,6 @@ func main() {
 
 	reader := bufio.NewReader(os.Stdin)
 
-	fmt.Println("Commands: look, move <north|south|east|west>, exit")
-
 	ctx, cancel := context.WithCancel(context.Background())
 	go w.Live(ctx)
 	for {
