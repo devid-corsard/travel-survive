@@ -18,8 +18,9 @@
 - [x] compact info
 - [ ] track buttons, so move with arrow buttons
 - [ ] track touches, so point to move, buttons commands
-- [ ] boat speed influences the delay between moves not the number of coordinates
+- [x] boat speed influences the delay between moves not the number of coordinates
 - [ ] refactor commands to interfaces and commands registry
+- [x] boat runs only in water
 
 ## Complex
 

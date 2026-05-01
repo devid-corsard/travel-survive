@@ -79,7 +79,11 @@ func RunComand(w *world.World, p *player.Player, c string, ren render.Chan) (boo
 		if len(args) < 2 {
 			comInfo = "Usage: go <direction>"
 		} else {
-			comInfo = toGo(w, p, args[1], ren)
+			if w.GetBiome(p.X, p.Y).Name == world.Water.Name {
+				comInfo = toGo(w, p, args[1], ren)
+			} else {
+				comInfo = "Can't go not in Water"
+			}
 		}
 
 	default:
@@ -180,6 +184,12 @@ func toGo(w *world.World, p *player.Player, dir string, ren render.Chan) string 
 		isGoing = p.SetSailing(true)
 		go func() {
 			for isGoing {
+				bn := w.GetBiome(p.X, p.Y).Name
+				if bn != world.Water.Name {
+					isGoing = p.SetSailing(false)
+					ren <- fmt.Sprintf("Cant go on %v, stopped", bn)
+					return
+				}
 				speed, err := boat.Go(w.Wind, d)
 				if err != nil {
 					ren <- err.Error()
