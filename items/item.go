@@ -101,7 +101,7 @@ func (b *Boat) Go(wind, course world.Direction) (int, error) {
 	return speed, nil
 }
 func (b *Boat) Describe() string {
-	return fmt.Sprintf("Boat, %v%% HP", int(b.HP))
+	return fmt.Sprintf("Boat(%v%%HP)", int(b.HP))
 }
 
 func NewBoat(rs []resource.Resource) (Item, error) {

@@ -19,16 +19,19 @@ func NewText(ld int) Renderer {
 
 // Display implements Renderer.
 func (t *Text) Display(w *world.World, p *player.Player, info string) {
+	clearScreen()
 	t.amap(w, p)
 	t.stat(p)
 	fmt.Println("Info: ", info)
 	fmt.Print("\n> ")
 }
+func clearScreen() {
+	fmt.Print("\033[2J") // clear screen
+	fmt.Print("\033[H")  // move cursor to top-left
+}
 
 func (t *Text) amap(w *world.World, p *player.Player) {
 	half := t.lookDistance / 2
-
-	fmt.Println()
 
 	for dy := -half; dy < half; dy++ {
 		for dx := -half; dx < half; dx++ {
@@ -36,11 +39,7 @@ func (t *Text) amap(w *world.World, p *player.Player) {
 			y := p.Y + dy
 
 			if dx == 0 && dy == 0 {
-				ic := p.Icon
-				if false {
-					ic = "⛵️"
-				}
-				fmt.Print(ic) // гравець
+				fmt.Print(p.Icon) // гравець
 				continue
 			}
 
@@ -50,20 +49,19 @@ func (t *Text) amap(w *world.World, p *player.Player) {
 		fmt.Println()
 	}
 
-	fmt.Println("\nYou are in:", w.GetBiome(p.X, p.Y).Name)
-	fmt.Println("Wind: ", w.Wind.String())
+	fmt.Printf("You are in: %v\tWind: %v\n", w.GetBiome(p.X, p.Y).Name, w.Wind.String())
 }
 
 func (t *Text) stat(p *player.Player) {
-	fmt.Printf("Health: %v\n", int(p.HP))
-	fmt.Printf("Hunger: %v\n", int(p.Hunger))
-	fmt.Printf("Resourses: \n")
+	fmt.Printf("Health: %v\tHunger: %v\n", int(p.HP), int(p.Hunger))
+	fmt.Printf("Resourses: ")
 	for _, res := range p.Resources {
-		fmt.Printf("%s:\t%v\n", res.Type.Name, res.Cnt)
+		fmt.Printf("%s(%v) ", res.Type.Name, res.Cnt)
 	}
-	fmt.Printf("Items: \n")
+	fmt.Println()
+	fmt.Printf("Items: ")
 	for _, itm := range p.Items {
-		fmt.Println(itm.Describe())
+		fmt.Print(itm.Describe())
 	}
-
+	fmt.Println()
 }

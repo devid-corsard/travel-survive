@@ -14,7 +14,8 @@
 - [x] refactor display to render in every game loop, commands return info result
 - [x] fix bug with move render
 
-- [ ] tui, each redraw clears the screen, resize dont brake anything
+- [x] tui, each redraw clears the screen, resize dont brake anything
+- [x] compact info
 - [ ] track buttons, so move with arrow buttons
 - [ ] track touches, so point to move, buttons commands
 - [ ] boat speed influences the delay between moves not the number of coordinates

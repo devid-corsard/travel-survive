@@ -84,7 +84,7 @@ func RunComand(w *world.World, p *player.Player, c string, ren render.Chan) (boo
 
 	default:
 		if prevCommand != "" {
-			RunComand(w, p, prevCommand, ren)
+			_, comInfo = RunComand(w, p, prevCommand, ren)
 		} else {
 			comInfo = "Unknown command"
 		}
