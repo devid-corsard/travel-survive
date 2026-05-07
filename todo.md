@@ -18,7 +18,7 @@
 - [x] compact info
 - [x] track buttons, so move with arrow buttons
 
-- [ ] FIX sqeezed map, world size wierd
+- [x] FIX sqeezed map, world size wierd
 - [ ] FIX Unkown comand info
 
 - [ ] track touches, so point to move, buttons commands
@@ -31,3 +31,5 @@
 - [ ] add storm in sea
 - [ ] add house item
 - [ ] add sleep and save with sleep
+
+- [x] parse map to fixed bioms array

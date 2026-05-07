@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 	_ "embed"
-	"fmt"
 	_ "image/png"
 	"log"
+	"os"
 	"time"
 	"travel_survival_game/game"
 	"travel_survival_game/player"
@@ -19,15 +19,28 @@ import (
 var mapFile []byte
 
 func main() {
+	logFile, err := os.OpenFile("game.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		panic(err)
+	}
+
+	log.SetOutput(logFile)
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("PANIC: %v", r)
+			panic(r)
+		}
+	}()
+
 	var info string
-	w, err := world.NewFromBytes(mapFile, 1024, 512)
+	w, err := world.NewFromBytes(mapFile, 1000, 500)
 	if err != nil {
 		panic(err)
 	}
 
 	p, err := game.Restore()
 	if err != nil {
-		fmt.Printf("fail to restore game, creating new: %v\n", err)
+		log.Printf("fail to restore game, creating new: %v\n", err)
 		p = player.New(w.WorldWidth/2, w.WorldHeight/2)
 	}
 	// Initialize screen
@@ -40,8 +53,6 @@ func main() {
 	}
 	defer s.Fini()
 	ren := render.NewTcell(25, s)
-
-	// reader := bufio.NewReader(os.Stdin)
 
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -125,6 +136,6 @@ func main() {
 	cancel()
 
 	if err = game.Save(p); err != nil {
-		fmt.Printf("failed to save game: %v\n", err)
+		log.Printf("failed to save game: %v\n", err)
 	}
 }

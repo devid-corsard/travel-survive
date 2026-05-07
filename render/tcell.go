@@ -31,7 +31,7 @@ func (t *Tcell) Display(w *world.World, p *player.Player, info string) {
 
 func (t *Tcell) amap(w *world.World, p *player.Player) {
 	ws, hs := t.screen.Size()
-	halfX := ws / 2
+	halfX := (ws - 2) / 2
 	halfY := (hs - 6) / 2
 
 	for dy := -halfY; dy < halfY; dy++ {
@@ -39,11 +39,11 @@ func (t *Tcell) amap(w *world.World, p *player.Player) {
 			x := p.X + dx
 			y := p.Y + dy
 
-			screenX := dx + halfX
+			screenX := (dx + halfX) * 2
 			screenY := dy + halfY
 
 			if dx == 0 && dy == 0 {
-				t.screen.Put(screenX, screenY, p.Icon, tcell.StyleDefault.Foreground(color.Red))
+				t.screen.Put(screenX/2, screenY, p.Icon, tcell.StyleDefault.Foreground(color.Red))
 				continue
 			}
 
@@ -64,18 +64,18 @@ func (t *Tcell) stat(p *player.Player, info string) {
 	t.drawText(0, hs-5, ws, hs-5, tcell.StyleDefault, fmt.Sprintf("Health: %v Hunger: %v\n", int(p.HP), int(p.Hunger)))
 	var sb strings.Builder
 	sb.WriteString("Resourses: ")
-	// fmt.Printf("Resourses: ")
 	for _, res := range p.Resources {
 		sb.WriteString(fmt.Sprintf("%s(%v) ", res.Type.Name, res.Cnt))
 	}
 	t.drawText(0, hs-4, ws, hs-4, tcell.StyleDefault, sb.String())
+
 	sb.Reset()
-	// fmt.Println()
 	sb.WriteString("Items: ")
 	for _, itm := range p.Items {
 		sb.WriteString(itm.Describe())
 	}
 	t.drawText(0, hs-3, ws, hs-3, tcell.StyleDefault, sb.String())
+
 	t.drawText(0, hs-2, ws, hs-2, tcell.StyleDefault, info)
 }
 
